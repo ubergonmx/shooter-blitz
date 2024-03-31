@@ -1,10 +1,14 @@
-# r3f-vite-starter
-A boilerplate to build R3F projects
+# Shooter Blitz
+
+A shooter game made in React Three Fiber (ThreeJS).
+
+## Installation
 
 ```
-yarn
-yarn dev
+npm i
+npm run dev
 ```
 
+## Credits
 
-![image](https://user-images.githubusercontent.com/6551176/221732091-23ee52cb-4150-42fa-b998-43628d7a6b0d.png)
+[wass88](https://github.com/wass08/r3f-vite-starter) - template of this R3F project
