@@ -4,15 +4,14 @@ import { useEffect } from "react";
 import { insertCoin } from "playroomkit";
 
 export const Experience = () => {
-
   const start = async () => {
     // Show Playroom UI
     await insertCoin();
-  }
+  };
 
   useEffect(() => {
-    start()
-  }, [])
+    start();
+  }, []);
 
   return (
     <>
