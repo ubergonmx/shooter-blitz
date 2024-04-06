@@ -65,7 +65,7 @@ export const Experience = () => {
           position-x={idx * 2}
         />
       ))}
-      <Environment preset="sunset" background />
+      <Environment preset="sunset" />
     </>
   );
 };
