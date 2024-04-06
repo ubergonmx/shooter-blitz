@@ -10,26 +10,28 @@ export const Experience = () => {
   const start = async () => {
     // Show Playroom UI
     await insertCoin();
-    
+
     // Create a joystick for each player
     onPlayerJoin((state) => {
       // Create joystick for current player
       // Others will only sync their state
       const joystick = new Joystick(state, {
         type: "angular",
-        buttons: [{ id: "fire", label: "Fire" }]
+        buttons: [{ id: "fire", label: "Fire" }],
       });
 
-      const newPlayer = {state, joystick};
+      const newPlayer = { state, joystick };
       state.setState("health", 100);
       state.setState("deaths", 0);
       state.setState("kills", 0);
       setPlayers((players) => [...players, newPlayer]);
       state.onQuit(() => {
-        setPlayers((players) => players.filter(player => player !== newPlayer));
+        setPlayers((players) =>
+          players.filter((player) => player !== newPlayer),
+        );
       });
-    }
-  )};
+    });
+  };
 
   useEffect(() => {
     start();
