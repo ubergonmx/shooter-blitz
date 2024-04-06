@@ -35,7 +35,7 @@ export const ChracterController = ({
         y: 0,
         z: Math.cos(angle) * MOVEMENT_SPEED * delta,
       };
-
+      rigidbody.current.wakeUp();
       rigidbody.current.applyImpulse(impulse);
     } // else if keyboard input (WASD)
     else if (userPlayer && (wPress || aPress || sPress || dPress)) {
@@ -58,6 +58,7 @@ export const ChracterController = ({
         z: Math.cos(angle) * MOVEMENT_SPEED * delta,
       };
 
+      rigidbody.current.wakeUp();
       rigidbody.current.applyImpulse(impulse);
     } else {
       setAnimation("Idle");
