@@ -173,6 +173,9 @@ export const CharacterController = ({
             }
           }
         }}
+        userData={{
+          type: "player",
+        }}
       >
         <PlayerInfo state={state.state} />
         <group ref={character}>

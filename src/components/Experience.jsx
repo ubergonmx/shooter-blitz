@@ -42,9 +42,9 @@ export const Experience = ({ downgradedPerformance = false }) => {
     setBullets((bullets) => [...bullets, bullet]);
   };
 
-  const onHit = (bulletId, position) => {
+  const onHit = (bulletId, position, type) => {
     setBullets((bullets) => bullets.filter((bullet) => bullet.id !== bulletId));
-    setHits((hits) => [...hits, { id: bulletId, position }]);
+    setHits((hits) => [...hits, { id: bulletId, position, type }]);
   };
 
   const onHitEnded = (hitId) => {
@@ -106,7 +106,7 @@ export const Experience = ({ downgradedPerformance = false }) => {
         <Bullet
           key={bullet.id}
           {...bullet}
-          onHit={(position) => onHit(bullet.id, position)}
+          onHit={(position, type) => onHit(bullet.id, position, type)}
         />
       ))}
       {(isHost() ? hits : networkHits).map((hit) => (

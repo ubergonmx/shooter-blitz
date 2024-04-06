@@ -15,7 +15,13 @@ export const Map = () => {
   });
 
   return (
-    <RigidBody colliders="trimesh" type="fixed">
+    <RigidBody
+      colliders="trimesh"
+      type="fixed"
+      userData={{
+        type: "map",
+      }}
+    >
       <primitive object={map.scene} />
     </RigidBody>
   );

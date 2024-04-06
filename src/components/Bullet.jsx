@@ -43,7 +43,10 @@ export const Bullet = ({ player, angle, position, onHit }) => {
             if (isHost() && e.other.rigidBody.userData?.type !== "bullet") {
               // Prevent the bullet from hitting the same object multiple times
               rigidbody.current.setEnabled(false);
-              onHit(vec3(rigidbody.current.translation()));
+              onHit(
+                vec3(rigidbody.current.translation()),
+                e.other.rigidBody.userData.type
+              );
             }
           }}
           userData={{
