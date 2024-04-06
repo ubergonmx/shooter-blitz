@@ -1,7 +1,7 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { CharacterSoldier } from "./CharacterSoldier";
 import { CapsuleCollider, RigidBody, vec3 } from "@react-three/rapier";
-import { useFrame } from "@react-three/fiber";
+import { useFrame, useThree } from "@react-three/fiber";
 import { useKeyPress } from "../hooks/useKeyPress";
 import { isHost } from "playroomkit";
 import { CameraControls } from "@react-three/drei";
@@ -21,6 +21,7 @@ export const CharacterController = ({
   keyboard,
   userPlayer,
   onFire,
+  onKilled,
   downgradedPerformance,
   ...props
 }) => {
@@ -30,6 +31,27 @@ export const CharacterController = ({
   const controls = useRef();
   const lastShoot = useRef(0);
   const [animation, setAnimation] = useState("Idle");
+
+  const scene = useThree((state) => state.scene);
+
+  const spawnRandomly = () => {
+    const spawns = [];
+    for (let i = 0; i < 1000; i++) {
+      // Search for an object in glb file with the name "spawn_<number>"
+      const spawn = scene.getObjectByName(`spawn_${i}`);
+      if (spawn) spawns.push(spawn);
+      else break;
+    }
+    const randomSpawn =
+      spawns[Math.floor(Math.random() * spawns.length)].position;
+    rigidbody.current.setTranslation(randomSpawn);
+  };
+
+  useEffect(() => {
+    if (isHost()) {
+      spawnRandomly();
+    }
+  }, []);
 
   useFrame((_, delta) => {
     // Camera follow
@@ -116,6 +138,32 @@ export const CharacterController = ({
         colliders={false}
         linearDamping={12}
         lockRotations
+        type={isHost() ? "dynamic" : "kinematicPosition"}
+        onIntersectionEnter={({ other }) => {
+          if (
+            isHost() &&
+            other.rigidBody.userData?.type === "bullet" &&
+            state.state.health > 0
+          ) {
+            const newHealth =
+              state.state.health - other.rigidBody.userData.damage;
+            if (newHealth <= 0) {
+              state.setState("dead", true);
+              state.setState("deaths", state.state.deaths + 1);
+              state.setState("health", 0);
+              rigidbodyy.current.setEnable(false);
+              setTimeout(() => {
+                spawnRandomly();
+                state.setState("dead", false);
+                state.setState("health", 100);
+                rigidbody.current.setEnable(true);
+              }, 2000);
+              onKilled(state.id, other.rigidBody.userData.player);
+            } else {
+              state.setState("health", newHealth);
+            }
+          }
+        }}
       >
         <group ref={character}>
           <CharacterSoldier

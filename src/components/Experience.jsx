@@ -77,7 +77,6 @@ export const Experience = ({ downgradedPerformance = false }) => {
           joystick={joystick}
           keyboard={keyboard}
           userPlayer={state.id === myPlayer()?.id}
-          position-x={idx * 2}
           onFire={onFire}
           downgradedPerformance={downgradedPerformance}
         />
