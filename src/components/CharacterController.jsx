@@ -1,9 +1,10 @@
 import { useRef, useState } from "react";
 import { CharacterSoldier } from "./CharacterSoldier";
-import { CapsuleCollider, RigidBody } from "@react-three/rapier";
+import { CapsuleCollider, RigidBody, vec3 } from "@react-three/rapier";
 import { useFrame } from "@react-three/fiber";
 import { useKeyPress } from "../hooks/useKeyPress";
 import { isHost } from "playroomkit";
+import { CameraControls } from "@react-three/drei";
 
 const MOVEMENT_SPEED = 200;
 
@@ -18,9 +19,26 @@ export const CharacterController = ({
   const group = useRef();
   const character = useRef();
   const rigidbody = useRef();
+  const controls = useRef();
   const [animation, setAnimation] = useState("Idle");
 
   useFrame((_, delta) => {
+    // Camera follow
+    if (controls.current) {
+      const cameraDistanceY = window.innerWidth < 1024 ? 16 : 20;
+      const cameraDistanceZ = window.innerWidth < 1024 ? 12 : 16;
+      const playerWorldPos = vec3(rigidbody.current.translation());
+      controls.current.setLookAt(
+        playerWorldPos.x,
+        playerWorldPos.y + (state.state.dead ? 12 : cameraDistanceY),
+        playerWorldPos.z + (state.state.dead ? 2 : cameraDistanceZ),
+        playerWorldPos.x,
+        playerWorldPos.y + 1.5,
+        playerWorldPos.z,
+        true
+      );
+    }
+
     // Update player position based on joystick state or keyboard input
     const angle = joystick.angle();
     const kbAngle = keyboard.angle();
@@ -65,6 +83,7 @@ export const CharacterController = ({
 
   return (
     <group ref={group} {...props}>
+      {userPlayer && <CameraControls ref={controls} />}
       <RigidBody
         ref={rigidbody}
         colliders={false}
@@ -86,13 +105,13 @@ export const CharacterController = ({
             intensity={0.3}
             castShadow={!downgradedPerformance} // Disable shadows on low-end devices
             shadow-camera-near={0}
-            shadow-camera-far={80}
-            shadow-camera-left={-30}
-            shadow-camera-right={30}
-            shadow-camera-top={25}
-            shadow-camera-bottom={-25}
-            shadow-mapSize-width={4096}
-            shadow-mapSize-height={4096}
+            shadow-camera-far={100}
+            shadow-camera-left={-20}
+            shadow-camera-right={20}
+            shadow-camera-top={20}
+            shadow-camera-bottom={-20}
+            shadow-mapSize-width={2048}
+            shadow-mapSize-height={2048}
             shadow-bias={-0.0001}
           />
         )}

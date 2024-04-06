@@ -42,7 +42,6 @@ export const Experience = ({ downgradedPerformance = false }) => {
 
   return (
     <>
-      <OrbitControls />
       <Map />
       {players.map(({ state, joystick, keyboard }, idx) => (
         <CharacterController
