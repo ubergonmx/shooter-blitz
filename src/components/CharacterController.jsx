@@ -3,12 +3,14 @@ import { CharacterSoldier } from "./CharacterSoldier";
 import { CapsuleCollider, RigidBody } from "@react-three/rapier";
 import { useFrame } from "@react-three/fiber";
 import { useKeyPress } from "../hooks/useKeyPress";
+import { isHost } from "playroomkit";
 
 const MOVEMENT_SPEED = 200;
 
-export const ChracterController = ({
+export const CharacterController = ({
   state,
   joystick,
+  keyboard,
   userPlayer,
   downgradedPerformance,
   ...props
@@ -16,15 +18,12 @@ export const ChracterController = ({
   const group = useRef();
   const character = useRef();
   const rigidbody = useRef();
-  const wPress = useKeyPress("w");
-  const aPress = useKeyPress("a");
-  const sPress = useKeyPress("s");
-  const dPress = useKeyPress("d");
   const [animation, setAnimation] = useState("Idle");
 
   useFrame((_, delta) => {
     // Update player position based on joystick state or keyboard input
     const angle = joystick.angle();
+    const kbAngle = keyboard.angle();
     if (joystick.isJoystickPressed() && angle) {
       setAnimation("Run");
       character.current.rotation.y = angle;
@@ -38,30 +37,29 @@ export const ChracterController = ({
       rigidbody.current.wakeUp();
       rigidbody.current.applyImpulse(impulse);
     } // else if keyboard input (WASD)
-    else if (userPlayer && (wPress || aPress || sPress || dPress)) {
-      let angle;
-      if (wPress && !aPress && !dPress) angle = Math.PI;
-      else if (aPress && !wPress && !sPress) angle = Math.PI * 1.5;
-      else if (sPress && !aPress && !dPress) angle = 0;
-      else if (dPress && !wPress && !sPress) angle = Math.PI / 2;
-      else if (sPress && aPress) angle = Math.PI * 1.75; // Northwest
-      else if (wPress && aPress) angle = Math.PI * 1.25; // Northeast
-      else if (wPress && dPress) angle = Math.PI * 0.75; // Southwest
-      else if (sPress && dPress) angle = Math.PI * 0.25; // Southeast
-
+    else if (keyboard.isAnyKeyPressed() && kbAngle) {
       setAnimation("Run");
-      character.current.rotation.y = angle;
+      character.current.rotation.y = kbAngle;
 
       const impulse = {
-        x: Math.sin(angle) * MOVEMENT_SPEED * delta,
+        x: Math.sin(kbAngle) * MOVEMENT_SPEED * delta,
         y: 0,
-        z: Math.cos(angle) * MOVEMENT_SPEED * delta,
+        z: Math.cos(kbAngle) * MOVEMENT_SPEED * delta,
       };
 
       rigidbody.current.wakeUp();
       rigidbody.current.applyImpulse(impulse);
     } else {
       setAnimation("Idle");
+    }
+
+    if (isHost()) {
+      // Sync player position
+      state.setState("pos", rigidbody.current.translation());
+    } else {
+      // Update player position based on host state
+      const pos = state.getState("pos");
+      if (pos) rigidbody.current.setTranslation(pos);
     }
   });
 

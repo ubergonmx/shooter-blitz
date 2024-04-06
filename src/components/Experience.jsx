@@ -3,7 +3,8 @@ import { Map } from "./Map";
 import { useEffect, useState } from "react";
 import { insertCoin, myPlayer, onPlayerJoin } from "playroomkit";
 import { Joystick } from "playroomkit/multiplayer.mjs";
-import { ChracterController } from "./CharacterController";
+import { CharacterController } from "./CharacterController";
+import Keyboard from "./Keyboard";
 
 export const Experience = ({ downgradedPerformance = false }) => {
   const [players, setPlayers] = useState([]);
@@ -14,14 +15,15 @@ export const Experience = ({ downgradedPerformance = false }) => {
 
     // Create a joystick for each player
     onPlayerJoin((state) => {
-      // Create joystick for current player
+      // Create joystick and keyboard for current player
       // Others will only sync their state
       const joystick = new Joystick(state, {
         type: "angular",
         buttons: [{ id: "fire", label: "Fire" }],
       });
 
-      const newPlayer = { state, joystick };
+      const keyboard = new Keyboard(state, state.id === myPlayer()?.id);
+      const newPlayer = { state, joystick, keyboard };
       state.setState("health", 100);
       state.setState("deaths", 0);
       state.setState("kills", 0);
@@ -42,11 +44,12 @@ export const Experience = ({ downgradedPerformance = false }) => {
     <>
       <OrbitControls />
       <Map />
-      {players.map(({ state, joystick }, idx) => (
-        <ChracterController
+      {players.map(({ state, joystick, keyboard }, idx) => (
+        <CharacterController
           key={state.id}
           state={state}
           joystick={joystick}
+          keyboard={keyboard}
           userPlayer={state.id === myPlayer()?.id}
           position-x={idx * 2}
           downgradedPerformance={downgradedPerformance}
