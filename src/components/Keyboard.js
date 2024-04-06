@@ -7,6 +7,8 @@ class Keyboard {
       a: false,
       s: false,
       d: false,
+      //space bar
+      " ": false,
     };
     this.lastAngle = 0;
 
@@ -31,6 +33,11 @@ class Keyboard {
     if (!this.isUserPlayer) return;
     const key = event.key.toLowerCase();
     if (this.keyPressHooks[key] !== undefined) {
+      if (key === " ") {
+        this.playerState.setState("ctr-fire", true);
+        return;
+      }
+
       this.playerState.setState("ctr-joystick", true);
       this.keyPressHooks[key] = true;
       this.updateAngle();
@@ -42,6 +49,10 @@ class Keyboard {
 
     const key = event.key.toLowerCase();
     if (this.keyPressHooks[key] !== undefined) {
+      if (key === " ") {
+        this.playerState.setState("ctr-fire", false);
+        return;
+      }
       this.keyPressHooks[key] = false;
       this.updateAngle();
     }
