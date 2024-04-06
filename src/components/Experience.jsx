@@ -1,8 +1,9 @@
 import { Environment, OrbitControls } from "@react-three/drei";
 import { Map } from "./Map";
 import { useEffect, useState } from "react";
-import { insertCoin, onPlayerJoin } from "playroomkit";
+import { insertCoin, myPlayer, onPlayerJoin } from "playroomkit";
 import { Joystick } from "playroomkit/multiplayer.mjs";
+import { ChracterController } from "./CharacterController";
 
 export const Experience = () => {
   const [players, setPlayers] = useState([]);
@@ -27,7 +28,7 @@ export const Experience = () => {
       setPlayers((players) => [...players, newPlayer]);
       state.onQuit(() => {
         setPlayers((players) =>
-          players.filter((player) => player !== newPlayer),
+          players.filter((player) => player !== newPlayer)
         );
       });
     });
@@ -55,6 +56,15 @@ export const Experience = () => {
       />
       <OrbitControls />
       <Map />
+      {players.map(({ state, joystick }, idx) => (
+        <ChracterController
+          key={state.id}
+          state={state}
+          joystick={joystick}
+          userPlayer={state.id === myPlayer()?.id}
+          position-x={idx * 2}
+        />
+      ))}
       <Environment preset="sunset" background />
     </>
   );
