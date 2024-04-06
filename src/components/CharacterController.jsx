@@ -10,6 +10,7 @@ export const ChracterController = ({
   state,
   joystick,
   userPlayer,
+  downgradedPerformance,
   ...props
 }) => {
   const group = useRef();
@@ -77,6 +78,25 @@ export const ChracterController = ({
             animation={animation}
           />
         </group>
+        {userPlayer && (
+          // Add a light to follow the user player
+          // This will only calculate not all shadows but
+          // only the shadows that are visible to the camera
+          <directionalLight
+            position={[25, 18, -25]}
+            intensity={0.3}
+            castShadow={!downgradedPerformance} // Disable shadows on low-end devices
+            shadow-camera-near={0}
+            shadow-camera-far={80}
+            shadow-camera-left={-30}
+            shadow-camera-right={30}
+            shadow-camera-top={25}
+            shadow-camera-bottom={-25}
+            shadow-mapSize-width={4096}
+            shadow-mapSize-height={4096}
+            shadow-bias={-0.0001}
+          />
+        )}
         <CapsuleCollider args={[0.7, 0.66]} position={[0, 1.28, 0]} />
       </RigidBody>
     </group>
