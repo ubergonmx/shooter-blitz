@@ -7,12 +7,20 @@ import { isHost } from "playroomkit";
 import { CameraControls } from "@react-three/drei";
 
 const MOVEMENT_SPEED = 200;
+const FIRE_RATE = 380;
+
+export const WEAPON_OFFSET = {
+  x: -0.2,
+  y: 1.4,
+  z: 0.8,
+};
 
 export const CharacterController = ({
   state,
   joystick,
   keyboard,
   userPlayer,
+  onFire,
   downgradedPerformance,
   ...props
 }) => {
@@ -20,6 +28,7 @@ export const CharacterController = ({
   const character = useRef();
   const rigidbody = useRef();
   const controls = useRef();
+  const lastShoot = useRef(0);
   const [animation, setAnimation] = useState("Idle");
 
   useFrame((_, delta) => {
@@ -78,6 +87,24 @@ export const CharacterController = ({
       // Update player position based on host state
       const pos = state.getState("pos");
       if (pos) rigidbody.current.setTranslation(pos);
+    }
+
+    // Check if fire button is pressed
+    if (joystick.isPressed("fire")) {
+      // fire
+      setAnimation("Idle_Shoot");
+      if (isHost()) {
+        if (Date.now() - lastShoot.current > FIRE_RATE) {
+          lastShoot.current = Date.now();
+          const newBullet = {
+            id: state.id + "-" + +new Date(),
+            position: vec3(rigidbody.current.translation()),
+            angle,
+            player: state.id,
+          };
+          onFire(newBullet);
+        }
+      }
     }
   });
 

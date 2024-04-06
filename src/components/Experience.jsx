@@ -5,9 +5,19 @@ import { insertCoin, myPlayer, onPlayerJoin } from "playroomkit";
 import { Joystick } from "playroomkit/multiplayer.mjs";
 import { CharacterController } from "./CharacterController";
 import Keyboard from "./Keyboard";
+import { Bullet } from "./Bullet";
 
 export const Experience = ({ downgradedPerformance = false }) => {
   const [players, setPlayers] = useState([]);
+  const [bullets, setBullets] = useState([]);
+
+  const onFire = (bullet) => {
+    setBullets((bullets) => [...bullets, bullet]);
+  };
+
+  const onHit = (id) => {
+    setBullets((bullets) => bullets.filter((bullet) => bullet.id !== id));
+  };
 
   const start = async () => {
     // Show Playroom UI
@@ -51,8 +61,12 @@ export const Experience = ({ downgradedPerformance = false }) => {
           keyboard={keyboard}
           userPlayer={state.id === myPlayer()?.id}
           position-x={idx * 2}
+          onFire={onFire}
           downgradedPerformance={downgradedPerformance}
         />
+      ))}
+      {bullets.map((bullet) => (
+        <Bullet key={bullet.id} {...bullet} onHit={() => onHit(bullet.id)} />
       ))}
       <Environment preset="sunset" />
     </>
