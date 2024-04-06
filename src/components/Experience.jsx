@@ -1,4 +1,4 @@
-import { Environment, OrbitControls } from "@react-three/drei";
+import { Environment } from "@react-three/drei";
 import { Map } from "./Map";
 import { useEffect, useState } from "react";
 import {
@@ -12,6 +12,7 @@ import { Joystick } from "playroomkit/multiplayer.mjs";
 import { CharacterController } from "./CharacterController";
 import Keyboard from "./Keyboard";
 import { Bullet } from "./Bullet";
+import { BulletHit } from "./BulletHit";
 
 export const Experience = ({ downgradedPerformance = false }) => {
   const [players, setPlayers] = useState([]);
@@ -24,16 +25,30 @@ export const Experience = ({ downgradedPerformance = false }) => {
     []
   );
 
+  // Local hits
+  const [hits, setHits] = useState([]);
+  // Network hits
+  const [networkHits, setNetworkHits] = useMultiplayerState("hits", []);
+
   useEffect(() => {
     setNetworkBullets(bullets);
   }, [bullets]);
+
+  useEffect(() => {
+    setNetworkHits(hits);
+  }, [hits]);
 
   const onFire = (bullet) => {
     setBullets((bullets) => [...bullets, bullet]);
   };
 
-  const onHit = (id) => {
-    setBullets((bullets) => bullets.filter((bullet) => bullet.id !== id));
+  const onHit = (bulletId, position) => {
+    setBullets((bullets) => bullets.filter((bullet) => bullet.id !== bulletId));
+    setHits((hits) => [...hits, { id: bulletId, position }]);
+  };
+
+  const onHitEnded = (hitId) => {
+    setHits((hits) => hits.filter((hit) => hit.id !== hitId));
   };
 
   const onKilled = (_victim, killer) => {
@@ -88,7 +103,14 @@ export const Experience = ({ downgradedPerformance = false }) => {
         />
       ))}
       {(isHost() ? bullets : networkBullets).map((bullet) => (
-        <Bullet key={bullet.id} {...bullet} onHit={() => onHit(bullet.id)} />
+        <Bullet
+          key={bullet.id}
+          {...bullet}
+          onHit={(position) => onHit(bullet.id, position)}
+        />
+      ))}
+      {(isHost() ? hits : networkHits).map((hit) => (
+        <BulletHit key={hit.id} {...hit} onEnded={() => onHitEnded(hit.id)} />
       ))}
       <Environment preset="sunset" />
     </>
