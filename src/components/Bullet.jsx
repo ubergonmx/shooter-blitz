@@ -4,7 +4,7 @@ import { MeshBasicMaterial } from "three";
 import { WEAPON_OFFSET } from "./CharacterController";
 import { isHost } from "playroomkit";
 
-const BULLET_SPEED = 70;
+const BULLET_SPEED = 20;
 
 const bulletMaterial = new MeshBasicMaterial({
   color: 0xffff00,
@@ -15,7 +15,12 @@ bulletMaterial.color.multiplyScalar(42);
 
 export const Bullet = ({ player, angle, position, onHit }) => {
   const rigidbody = useRef();
+
   useEffect(() => {
+    const audio = new Audio("/sounds/pistol.mp3");
+    audio.volume = 0.2;
+    audio.play();
+
     const velocity = {
       x: Math.sin(angle) * BULLET_SPEED,
       y: 0,
@@ -23,10 +28,6 @@ export const Bullet = ({ player, angle, position, onHit }) => {
     };
 
     rigidbody.current.setLinvel(velocity, true);
-
-    const audio = new Audio("/sounds/pistol.mp3");
-    audio.volume = 0.2;
-    audio.play();
   }, []);
 
   return (
@@ -41,7 +42,7 @@ export const Bullet = ({ player, angle, position, onHit }) => {
           onIntersectionEnter={(e) => {
             if (isHost() && e.other.rigidBody.userData?.type !== "bullet") {
               // Prevent the bullet from hitting the same object multiple times
-              rigitbody.current.setEnable(false);
+              rigidbody.current.setEnabled(false);
               onHit(vec3(rigidbody.current.translation()));
             }
           }}
@@ -54,10 +55,6 @@ export const Bullet = ({ player, angle, position, onHit }) => {
           <mesh position-z={0.25} material={bulletMaterial} castShadow>
             <boxGeometry args={[0.05, 0.05, 0.5]} />
           </mesh>
-          {/* <mesh castShadow>
-            <sphereBufferGeometry args={[0.1, 32, 32]} />
-            <meshStandardMaterial color="red" />
-          </mesh> */}
         </RigidBody>
       </group>
     </group>
