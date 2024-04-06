@@ -36,6 +36,11 @@ export const Experience = ({ downgradedPerformance = false }) => {
     setBullets((bullets) => bullets.filter((bullet) => bullet.id !== id));
   };
 
+  const onKilled = (_victim, killer) => {
+    const killerState = players.find((p) => p.state.id === killer).state;
+    killerState.setState("kills", killerState.state.kills + 1);
+  };
+
   const start = async () => {
     // Show Playroom UI
     await insertCoin();
@@ -78,6 +83,7 @@ export const Experience = ({ downgradedPerformance = false }) => {
           keyboard={keyboard}
           userPlayer={state.id === myPlayer()?.id}
           onFire={onFire}
+          onKilled={onKilled}
           downgradedPerformance={downgradedPerformance}
         />
       ))}
