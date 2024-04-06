@@ -8,6 +8,7 @@ class Keyboard {
       s: false,
       d: false,
     };
+    this.lastAngle = 0;
 
     this.keyDownHandler = this.keyDownHandler.bind(this);
     this.keyUpHandler = this.keyUpHandler.bind(this);
@@ -51,7 +52,7 @@ class Keyboard {
   }
 
   updateAngle() {
-    let angle = 0;
+    let angle = this.lastAngle;
     if (
       this.keyPressHooks.w &&
       !this.keyPressHooks.a &&
@@ -85,6 +86,7 @@ class Keyboard {
     } else if (this.keyPressHooks.s && this.keyPressHooks.d) {
       angle = Math.PI * 0.25;
     }
+    this.lastAngle = angle;
     this.playerState.setState("ctr-angle", angle);
   }
 
