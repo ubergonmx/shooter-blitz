@@ -45,6 +45,11 @@ class Keyboard {
       this.keyPressHooks[key] = false;
       this.updateAngle();
     }
+
+    // If no keys are pressed, stop the player
+    if (!this.isAnyKeyPressed()) {
+      this.playerState.setState("ctr-joystick", false);
+    }
   }
 
   angle() {
