@@ -53,6 +53,45 @@ export function CharacterSoldier({
     return () => actions[animation]?.fadeOut(0.2);
   }, [animation]);
 
+  const playerColorMaterial = useMemo(
+    () =>
+      new MeshStandardMaterial({
+        color: new Color(color),
+      }),
+    [color]
+  );
+  useEffect(() => {
+    // HIDING NON-SELECTED WEAPONS
+    WEAPONS.forEach((wp) => {
+      const isCurrentWeapon = wp === weapon;
+      nodes[wp].visible = isCurrentWeapon;
+    });
+
+    // ASSIGNING CHARACTER COLOR
+    nodes.Body.traverse((child) => {
+      if (child.isMesh && child.material.name === "Character_Main") {
+        child.material = playerColorMaterial;
+      }
+      if (child.isMesh) {
+        child.castShadow = true;
+        child.receiveShadow = true;
+      }
+    });
+    nodes.Head.traverse((child) => {
+      if (child.isMesh && child.material.name === "Character_Main") {
+        child.material = playerColorMaterial;
+      }
+    });
+    clone.traverse((child) => {
+      if (child.isMesh && child.material.name === "Character_Main") {
+        child.material = playerColorMaterial;
+      }
+      if (child.isMesh) {
+        child.castShadow = true;
+      }
+    });
+  }, [nodes, clone]);
+
   return (
     <group ref={group} {...props} dispose={null}>
       <group name="Scene">
