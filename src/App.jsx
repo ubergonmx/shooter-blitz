@@ -28,12 +28,12 @@ function App() {
         </Physics>
       </Suspense>
 
-      {!downgradedPerformance && (
+      {/* {!downgradedPerformance && (
         // Disable postprocessing on low-end devices
         <EffectComposer disableNormalPass>
           <Bloom luminanceThreshold={1} intensity={1.5} mipmapBlur />
         </EffectComposer>
-      )}
+      )} */}
     </Canvas>
   );
 }
