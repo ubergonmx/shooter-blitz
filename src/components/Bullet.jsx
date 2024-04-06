@@ -1,14 +1,17 @@
-import { RigidBody } from "@react-three/rapier";
+import { RigidBody, vec3 } from "@react-three/rapier";
 import { useEffect, useRef } from "react";
 import { MeshBasicMaterial } from "three";
 import { WEAPON_OFFSET } from "./CharacterController";
+import { isHost } from "playroomkit";
 
-const BULLET_SPEED = 50;
+const BULLET_SPEED = 70;
 
 const bulletMaterial = new MeshBasicMaterial({
-  color: 0xff0000,
+  color: 0xffff00,
   toneMapped: false,
 });
+
+bulletMaterial.color.multiplyScalar(42);
 
 export const Bullet = ({ player, angle, position, onHit }) => {
   const rigidbody = useRef();
@@ -24,15 +27,33 @@ export const Bullet = ({ player, angle, position, onHit }) => {
 
   return (
     <group position={[position.x, position.y, position.z]} rotation-y={angle}>
-      <group
-        position={[WEAPON_OFFSET.x, WEAPON_OFFSET.y, WEAPON_OFFSET.z]}
-        rotation-y={angle}
-      >
-        <RigidBody ref={rigidbody}>
-          <mesh>
+      <group position={[WEAPON_OFFSET.x, WEAPON_OFFSET.y, WEAPON_OFFSET.z]}>
+        <RigidBody
+          ref={rigidbody}
+          gravityScale={0}
+          // Set the bullet type to be able to detect it in the
+          // intersection callback
+          sensor
+          onIntersectionEnter={(e) => {
+            if (isHost() && e.other.rigidBody.userData?.type !== "bullet") {
+              // Prevent the bullet from hitting the same object multiple times
+              rigitbody.current.setEnable(false);
+              onHit(vec3(rigidbody.current.translation()));
+            }
+          }}
+          userData={{
+            type: "bullet",
+            player,
+            damage: 10,
+          }}
+        >
+          <mesh position-z={0.25} material={bulletMaterial} castShadow>
+            <boxGeometry args={[0.05, 0.05, 0.5]} />
+          </mesh>
+          {/* <mesh castShadow>
             <sphereBufferGeometry args={[0.1, 32, 32]} />
             <meshStandardMaterial color="red" />
-          </mesh>
+          </mesh> */}
         </RigidBody>
       </group>
     </group>
