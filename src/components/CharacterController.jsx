@@ -4,7 +4,7 @@ import { CapsuleCollider, RigidBody, vec3 } from "@react-three/rapier";
 import { useFrame, useThree } from "@react-three/fiber";
 import { useKeyPress } from "../hooks/useKeyPress";
 import { isHost } from "playroomkit";
-import { CameraControls } from "@react-three/drei";
+import { Billboard, CameraControls, Text } from "@react-three/drei";
 
 const MOVEMENT_SPEED = 200;
 const FIRE_RATE = 380;
@@ -151,12 +151,12 @@ export const CharacterController = ({
               state.setState("dead", true);
               state.setState("deaths", state.state.deaths + 1);
               state.setState("health", 0);
-              rigidbodyy.current.setEnable(false);
+              rigidbody.current.setEnabled(false);
               setTimeout(() => {
                 spawnRandomly();
                 state.setState("dead", false);
                 state.setState("health", 100);
-                rigidbody.current.setEnable(true);
+                rigidbody.current.setEnabled(true);
               }, 2000);
               onKilled(state.id, other.rigidBody.userData.player);
             } else {
@@ -165,6 +165,7 @@ export const CharacterController = ({
           }
         }}
       >
+        <PlayerInfo state={state.state} />
         <group ref={character}>
           <CharacterSoldier
             color={state.state.profile?.color}
@@ -232,5 +233,26 @@ const Crosshair = (props) => {
         <meshBasicMaterial color="black" opacity={0.2} transparent />
       </mesh>
     </group>
+  );
+};
+
+const PlayerInfo = ({ state }) => {
+  const health = state.health;
+  const name = state.profile.name;
+  return (
+    <Billboard position-y={2.5}>
+      <Text position-y={0.36} fontSize={0.4}>
+        {name}
+        <meshBasicMaterial color={state.profile.color} />
+      </Text>
+      <mesh position-z={-0.1}>
+        <planeGeometry args={[1, 0.2]} />
+        <meshBasicMaterial color="black" transparent opacity={0.5} />
+      </mesh>
+      <mesh scale-x={health / 100} position-x={-0.5 * (1 - health / 100)}>
+        <planeGeometry args={[1, 0.2]} />
+        <meshBasicMaterial color="red" />
+      </mesh>
+    </Billboard>
   );
 };
