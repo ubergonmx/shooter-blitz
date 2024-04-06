@@ -1,7 +1,13 @@
 import { Environment, OrbitControls } from "@react-three/drei";
 import { Map } from "./Map";
 import { useEffect, useState } from "react";
-import { insertCoin, myPlayer, onPlayerJoin } from "playroomkit";
+import {
+  insertCoin,
+  isHost,
+  myPlayer,
+  onPlayerJoin,
+  useMultiplayerState,
+} from "playroomkit";
 import { Joystick } from "playroomkit/multiplayer.mjs";
 import { CharacterController } from "./CharacterController";
 import Keyboard from "./Keyboard";
@@ -9,7 +15,18 @@ import { Bullet } from "./Bullet";
 
 export const Experience = ({ downgradedPerformance = false }) => {
   const [players, setPlayers] = useState([]);
+
+  // Local bullets
   const [bullets, setBullets] = useState([]);
+  // Network bullets
+  const [networkBullets, setNetworkBullets] = useMultiplayerState(
+    "bullets",
+    []
+  );
+
+  useEffect(() => {
+    setNetworkBullets(bullets);
+  }, [bullets]);
 
   const onFire = (bullet) => {
     setBullets((bullets) => [...bullets, bullet]);
@@ -65,7 +82,7 @@ export const Experience = ({ downgradedPerformance = false }) => {
           downgradedPerformance={downgradedPerformance}
         />
       ))}
-      {bullets.map((bullet) => (
+      {(isHost() ? bullets : networkBullets).map((bullet) => (
         <Bullet key={bullet.id} {...bullet} onHit={() => onHit(bullet.id)} />
       ))}
       <Environment preset="sunset" />
