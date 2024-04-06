@@ -29,7 +29,7 @@ const WEAPONS = [
 export function CharacterSoldier({
   color = "black",
   animation = "Idle",
-  weapon = "AK",
+  weapon = "Pistol",
   ...props
 }) {
   const group = useRef();
