@@ -25,6 +25,7 @@ export const Bullet = ({ player, angle, position, onHit }) => {
     rigidbody.current.setLinvel(velocity, true);
 
     const audio = new Audio("/sounds/pistol.mp3");
+    audio.volume = 0.2;
     audio.play();
   }, []);
 
