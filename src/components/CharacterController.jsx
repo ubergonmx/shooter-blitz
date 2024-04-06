@@ -54,6 +54,9 @@ export const CharacterController = ({
   }, []);
 
   useFrame((_, delta) => {
+    // If there is no rigidbody, return
+    if (!rigidbody.current) return;
+
     // Camera follow
     if (controls.current) {
       const cameraDistanceY = window.innerWidth < 1024 ? 16 : 20;
@@ -68,6 +71,12 @@ export const CharacterController = ({
         playerWorldPos.z,
         true
       );
+    }
+
+    // If player is dead, play death sfx & animation
+    if (state.state.dead) {
+      setAnimation("Death");
+      return;
     }
 
     // Update player position based on joystick state or keyboard input
