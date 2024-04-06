@@ -1,6 +1,8 @@
 import { Canvas } from "@react-three/fiber";
 import { Experience } from "./components/Experience";
 import { SoftShadows } from "@react-three/drei";
+import { Suspense } from "react";
+import { Physics } from "@react-three/rapier";
 
 function App() {
   return (
@@ -8,7 +10,11 @@ function App() {
       <color attach="background" args={["#242424"]} />
       {/* smoothen the shadow to make them less harsh */}
       <SoftShadows size={42} />
-      <Experience />
+      <Suspense>
+        <Physics>
+          <Experience />
+        </Physics>
+      </Suspense>
     </Canvas>
   );
 }
