@@ -29,9 +29,9 @@ class Keyboard {
 
   keyDownHandler(event) {
     if (!this.isUserPlayer) return;
-    this.playerState.setState("ctr-joystick", true);
     const key = event.key.toLowerCase();
     if (this.keyPressHooks[key] !== undefined) {
+      this.playerState.setState("ctr-joystick", true);
       this.keyPressHooks[key] = true;
       this.updateAngle();
     }
