@@ -56,6 +56,11 @@ export const Experience = ({ downgradedPerformance = false }) => {
     killerState.setState("kills", killerState.state.kills + 1);
   };
 
+  const getRandomCharacter = () => {
+    const characters = ["Bond", "Steve", "Bambo"];
+    return characters[Math.floor(Math.random() * characters.length)];
+  };
+
   const start = async () => {
     // Show Playroom UI
     await insertCoin();
@@ -68,12 +73,12 @@ export const Experience = ({ downgradedPerformance = false }) => {
         type: "angular",
         buttons: [{ id: "fire", label: "Fire" }],
       });
-
       const keyboard = new Keyboard(state, state.id === myPlayer()?.id);
       const newPlayer = { state, joystick, keyboard };
       state.setState("health", 100);
       state.setState("deaths", 0);
       state.setState("kills", 0);
+      state.setState("character", getRandomCharacter());
       setPlayers((players) => [...players, newPlayer]);
       state.onQuit(() => {
         setPlayers((players) =>

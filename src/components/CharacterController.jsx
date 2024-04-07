@@ -1,19 +1,26 @@
 import { useEffect, useRef, useState } from "react";
 import { CharacterSoldier } from "./CharacterSoldier";
+import { CharacterPlayer } from "./CharacterPlayer";
 import { CapsuleCollider, RigidBody, vec3 } from "@react-three/rapier";
 import { useFrame, useThree } from "@react-three/fiber";
-import { useKeyPress } from "../hooks/useKeyPress";
 import { isHost } from "playroomkit";
 import { Billboard, CameraControls, Text } from "@react-three/drei";
 
 const MOVEMENT_SPEED = 200;
 const FIRE_RATE = 380;
 
+// FOR CHARACTER PLAYER
 export const WEAPON_OFFSET = {
-  x: -0.2,
-  y: 1.4,
-  z: 0.8,
+  x: -0.4,
+  y: 2.0,
+  z: 1.0,
 };
+// FOR CHARACTER SOLDIER
+// export const WEAPON_OFFSET = {
+//   x: -0.2,
+//   y: 1.4,
+//   z: 0.8,
+// };
 
 export const CharacterController = ({
   state,
@@ -199,10 +206,14 @@ export const CharacterController = ({
       >
         <PlayerInfo state={state.state} />
         <group ref={character}>
-          <CharacterSoldier
+          <CharacterPlayer
+            animation={animation}
+            character={state.getState("character")}
+          />
+          {/* <CharacterSoldier 
             color={state.state.profile?.color}
             animation={animation}
-          />
+          /> */}
           {userPlayer && (
             <Crosshair
               position={[WEAPON_OFFSET.x, WEAPON_OFFSET.y, WEAPON_OFFSET.z]}
