@@ -58,7 +58,16 @@ export const Experience = ({ downgradedPerformance = false }) => {
 
   const getRandomCharacter = () => {
     const characters = ["Bond", "Steve", "Bambo", "Zombie"];
-    return characters[Math.floor(Math.random() * characters.length)];
+    // check if character is already taken
+    const takenCharacters = players.map((p) => p.state.character);
+    const availableCharacters = characters.filter(
+      (c) => !takenCharacters.includes(c)
+    );
+    if (availableCharacters.length > 0) {
+      return availableCharacters[
+        Math.floor(Math.random() * availableCharacters.length)
+      ];
+    }
   };
 
   const start = async () => {
