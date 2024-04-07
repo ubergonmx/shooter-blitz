@@ -53,6 +53,14 @@ export const CharacterController = ({
     }
   }, []);
 
+  useEffect(() => {
+    if (state.state.dead) {
+      const audio = new Audio("/sounds/death.mp3");
+      audio.volume = 0.5;
+      audio.play();
+    }
+  }, [state.state.dead]);
+
   useFrame((_, delta) => {
     // If there is no rigidbody, return
     if (!rigidbody.current) return;
@@ -123,7 +131,12 @@ export const CharacterController = ({
     // Check if fire button is pressed
     if (joystick.isPressed("fire")) {
       // fire
-      setAnimation("Idle_Shoot");
+      if (
+        (joystick.isJoystickPressed() && angle) ||
+        (keyboard.isAnyKeyPressed() && kbAngle)
+      )
+        setAnimation("Run_Shoot");
+      else setAnimation("Idle_Shoot");
       if (isHost()) {
         if (Date.now() - lastShoot.current > FIRE_RATE) {
           lastShoot.current = Date.now();
