@@ -30,6 +30,7 @@ export const CharacterController = ({
   const rigidbody = useRef();
   const controls = useRef();
   const lastShoot = useRef(0);
+  const directionalLight = useRef();
   const [animation, setAnimation] = useState("Idle");
 
   const scene = useThree((state) => state.scene);
@@ -60,6 +61,12 @@ export const CharacterController = ({
       audio.play();
     }
   }, [state.state.dead]);
+
+  useEffect(() => {
+    if (character.current && userPlayer) {
+      directionalLight.current.target = character.current;
+    }
+  }, [character.current]);
 
   useFrame((_, delta) => {
     // If there is no rigidbody, return
@@ -207,6 +214,7 @@ export const CharacterController = ({
           // This will only calculate not all shadows but
           // only the shadows that are visible to the camera
           <directionalLight
+            ref={directionalLight}
             position={[25, 18, -25]}
             intensity={0.3}
             castShadow={!downgradedPerformance} // Disable shadows on low-end devices
