@@ -47,3 +47,4 @@ export function CharacterPlayer({
 useGLTF.preload("/models/Character_Bond.glb");
 useGLTF.preload("/models/Character_Bambo.glb");
 useGLTF.preload("/models/Character_Steve.glb");
+useGLTF.preload("/models/Character_Zombie.glb");

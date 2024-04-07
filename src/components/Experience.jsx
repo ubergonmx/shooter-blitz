@@ -57,7 +57,7 @@ export const Experience = ({ downgradedPerformance = false }) => {
   };
 
   const getRandomCharacter = () => {
-    const characters = ["Bond", "Steve", "Bambo"];
+    const characters = ["Bond", "Steve", "Bambo", "Zombie"];
     return characters[Math.floor(Math.random() * characters.length)];
   };
 
