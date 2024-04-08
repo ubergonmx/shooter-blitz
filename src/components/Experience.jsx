@@ -2,6 +2,8 @@ import { Environment } from "@react-three/drei";
 import { Map } from "./Map";
 import { useEffect, useState } from "react";
 import {
+  getState,
+  setState,
   insertCoin,
   isHost,
   myPlayer,
@@ -57,22 +59,25 @@ export const Experience = ({ downgradedPerformance = false }) => {
   };
 
   const getRandomCharacter = () => {
-    const characters = ["Bond", "Steve", "Bambo", "Zombie"];
-    // check if character is already taken
-    const takenCharacters = players.map((p) => p.state.character);
-    const availableCharacters = characters.filter(
-      (c) => !takenCharacters.includes(c)
-    );
+    const availableCharacters = getState("characters");
     if (availableCharacters.length > 0) {
-      return availableCharacters[
-        Math.floor(Math.random() * availableCharacters.length)
-      ];
+      const character =
+        availableCharacters[
+          Math.floor(Math.random() * availableCharacters.length)
+        ];
+      setState(
+        "characters",
+        availableCharacters.filter((c) => c !== character)
+      );
+      return character;
     }
   };
 
   const start = async () => {
     // Show Playroom UI
     await insertCoin();
+
+    if (isHost()) setState("characters", ["Bond", "Steve", "Bambo", "Zombie"]);
 
     // Create a joystick for each player
     onPlayerJoin((state) => {
@@ -87,12 +92,18 @@ export const Experience = ({ downgradedPerformance = false }) => {
       state.setState("health", 100);
       state.setState("deaths", 0);
       state.setState("kills", 0);
-      state.setState("character", getRandomCharacter());
+      if (state.getState("character") === undefined)
+        state.setState("character", getRandomCharacter());
       setPlayers((players) => [...players, newPlayer]);
       state.onQuit(() => {
         setPlayers((players) =>
           players.filter((player) => player !== newPlayer)
         );
+        // Add character back to the list
+        setState("characters", [
+          ...getState("characters"),
+          state.getState("character"),
+        ]);
       });
     });
   };
