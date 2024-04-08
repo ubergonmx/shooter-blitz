@@ -16,6 +16,7 @@ The project is available online, and it can be also run locally. If you want to 
 2. Type `npm install`
 3. Type `npm run dev`
 4. Open any browser and type what the console prints (e.g., localhost:5137)
+5. Click `Launch` to start the game; WASD for controls, and Space for Fire if you prefer to use a keyboard.
 
 If you want to play on **LAN**, replace `dev` with `demo` in step 3 and type the provided **Network URL**. In this way, you can also play using either **desktop** or **mobile devices**.
 
