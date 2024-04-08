@@ -8,14 +8,16 @@ The project chosen is a simple top-view 3D shooter game where players will engag
 
 The inspiration for this project stems from our childhood of playing countless hours of Boxhead as well as Minecraft. By using techniques we learned in class and also from online tutorials, we were able to model, animate, and program in 3JS, and we were able to create our vision of a 3D game similar to Boxhead but with a new environment and added Minecraft characters. Through this game, we were able to showcase what we learned by applying 3D graphics and animation in a shooter game genre.
 
-## Installation
+## How to run the game
 
-Run the following commands in terminal to install and play.
+The project is available online, and it can be also run locally. If you want to try the online version, simply visit https://shooter-blitz.pages.dev. If you want to try locally, Node.js and npm must be installed on your PC. To run the program, simply follow the steps below:
 
-```bash
-npm i
-npm run demo
-```
+1. Open the terminal in the directory of the project folder.
+2. Type `npm install`
+3. Type `npm run dev`
+4. Open any browser and type what the console prints (e.g., localhost:5137)
+
+If you want to play on **LAN**, replace `dev` with `demo` in step 3 and type the provided **Network URL**. In this way, you can also play using either **desktop** or **mobile devices**.
 
 ## Credits
 
