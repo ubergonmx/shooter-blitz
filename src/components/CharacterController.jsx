@@ -22,6 +22,19 @@ export const WEAPON_OFFSET = {
 //   z: 0.8,
 // };
 
+// Disable CameraControls mouse buttons and touch events
+const mouseButtons = {
+  left: 0,
+  right: 0,
+  middle: 0,
+  wheel: 0,
+};
+const touches = {
+  one: 0,
+  two: 0,
+  three: 0,
+};
+
 export const CharacterController = ({
   state,
   joystick,
@@ -30,6 +43,7 @@ export const CharacterController = ({
   onFire,
   onKilled,
   downgradedPerformance,
+  useJoystick,
   ...props
 }) => {
   const group = useRef();
@@ -75,7 +89,7 @@ export const CharacterController = ({
     }
   }, [character.current]);
 
-  useFrame((_, delta) => {
+  useFrame(({ mouse, viewport }, delta) => {
     // If there is no rigidbody, return
     if (!rigidbody.current) return;
 
@@ -101,34 +115,47 @@ export const CharacterController = ({
       return;
     }
 
+    if (keyboard.hasMouse() && !useJoystick) {
+      const x = (mouse.x * viewport.width) / 2.5;
+      const y = (mouse.y * viewport.height) / 2.5;
+      let mouseAngle = -Math.atan2(x, y) + Math.PI;
+      state.setState("ctr-angle", mouseAngle);
+      character.current.rotation.y = mouseAngle;
+    }
+
     // Update player position based on joystick state or keyboard input
     const angle = joystick.angle();
-    const kbAngle = keyboard.angle();
     if (joystick.isJoystickPressed() && angle) {
-      setAnimation("Run");
-      character.current.rotation.y = angle;
+      if (useJoystick) {
+        setAnimation("Run");
+        character.current.rotation.y = angle;
 
-      // Move the character in its own direction
-      const impulse = {
-        x: Math.sin(angle) * MOVEMENT_SPEED * delta,
-        y: 0,
-        z: Math.cos(angle) * MOVEMENT_SPEED * delta,
-      };
-      rigidbody.current.wakeUp();
-      rigidbody.current.applyImpulse(impulse);
-    } // else if keyboard input (WASD)
-    else if (keyboard.isAnyKeyPressed() && kbAngle) {
-      setAnimation("Run");
-      character.current.rotation.y = kbAngle;
+        // Move the character in its own direction
+        const impulse = {
+          x: Math.sin(angle) * MOVEMENT_SPEED * delta,
+          y: 0,
+          z: Math.cos(angle) * MOVEMENT_SPEED * delta,
+        };
+        rigidbody.current.wakeUp();
+        rigidbody.current.applyImpulse(impulse);
+      } else {
+        setAnimation("Idle");
+        if (!keyboard.hasMouse()) character.current.rotation.y = angle;
+        let angleMove = angle;
+        if (keyboard.isAnyKeyPressed()) angleMove = keyboard.kbAngle();
 
-      const impulse = {
-        x: Math.sin(kbAngle) * MOVEMENT_SPEED * delta,
-        y: 0,
-        z: Math.cos(kbAngle) * MOVEMENT_SPEED * delta,
-      };
-
-      rigidbody.current.wakeUp();
-      rigidbody.current.applyImpulse(impulse);
+        // Move the character in its own direction
+        if (keyboard.isAnyKeyPressed()) {
+          setAnimation("Run");
+          const impulse = {
+            x: Math.sin(angleMove) * MOVEMENT_SPEED * delta,
+            y: 0,
+            z: Math.cos(angleMove) * MOVEMENT_SPEED * delta,
+          };
+          rigidbody.current.wakeUp();
+          rigidbody.current.applyImpulse(impulse);
+        }
+      }
     } else {
       setAnimation("Idle");
     }
@@ -146,8 +173,8 @@ export const CharacterController = ({
     if (joystick.isPressed("fire")) {
       // fire
       if (
-        (joystick.isJoystickPressed() && angle) ||
-        (keyboard.isAnyKeyPressed() && kbAngle)
+        (useJoystick && joystick.isJoystickPressed() && angle) ||
+        keyboard.isAnyKeyPressed()
       )
         setAnimation("Run_Shoot");
       else setAnimation("Idle_Shoot");
@@ -168,7 +195,13 @@ export const CharacterController = ({
 
   return (
     <group ref={group} {...props}>
-      {userPlayer && <CameraControls ref={controls} />}
+      {userPlayer && (
+        <CameraControls
+          ref={controls}
+          mouseButtons={mouseButtons}
+          touches={touches}
+        />
+      )}
       <RigidBody
         ref={rigidbody}
         colliders={false}

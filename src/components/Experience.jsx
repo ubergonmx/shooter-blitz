@@ -2,8 +2,6 @@ import { Environment } from "@react-three/drei";
 import { Map } from "./Map";
 import { useEffect, useState } from "react";
 import {
-  getState,
-  setState,
   insertCoin,
   isHost,
   myPlayer,
@@ -16,7 +14,10 @@ import Keyboard from "./Keyboard";
 import { Bullet } from "./Bullet";
 import { BulletHit } from "./BulletHit";
 
-export const Experience = ({ downgradedPerformance = false }) => {
+export const Experience = ({
+  downgradedPerformance = false,
+  useJoystick = true,
+}) => {
   const [players, setPlayers] = useState([]);
 
   // Local bullets
@@ -84,6 +85,7 @@ export const Experience = ({ downgradedPerformance = false }) => {
         state.setState("character", getRandomCharacter());
       setPlayers((players) => [...players, newPlayer]);
       state.onQuit(() => {
+        keyboard.removeEventListeners();
         setPlayers((players) =>
           players.filter((player) => player !== newPlayer)
         );
@@ -108,6 +110,7 @@ export const Experience = ({ downgradedPerformance = false }) => {
           onFire={onFire}
           onKilled={onKilled}
           downgradedPerformance={downgradedPerformance}
+          useJoystick={useJoystick}
         />
       ))}
       {(isHost() ? bullets : networkBullets).map((bullet) => (
