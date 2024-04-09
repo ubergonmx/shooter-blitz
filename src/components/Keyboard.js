@@ -21,7 +21,6 @@ class Keyboard {
       this.keyDownHandler = this.keyDownHandler.bind(this);
       this.keyUpHandler = this.keyUpHandler.bind(this);
       this.addEventListeners();
-      console.log(this.joystick);
     });
   }
 
