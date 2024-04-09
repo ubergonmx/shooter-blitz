@@ -59,25 +59,13 @@ export const Experience = ({ downgradedPerformance = false }) => {
   };
 
   const getRandomCharacter = () => {
-    const availableCharacters = getState("characters");
-    if (availableCharacters.length > 0) {
-      const character =
-        availableCharacters[
-          Math.floor(Math.random() * availableCharacters.length)
-        ];
-      setState(
-        "characters",
-        availableCharacters.filter((c) => c !== character)
-      );
-      return character;
-    }
+    const characters = ["Bond", "Bambo", "Steve", "Zombie"];
+    return characters[Math.floor(Math.random() * characters.length)];
   };
 
   const start = async () => {
     // Show Playroom UI
     await insertCoin();
-
-    if (isHost()) setState("characters", ["Bond", "Steve", "Bambo", "Zombie"]);
 
     // Create a joystick for each player
     onPlayerJoin((state) => {
@@ -99,11 +87,6 @@ export const Experience = ({ downgradedPerformance = false }) => {
         setPlayers((players) =>
           players.filter((player) => player !== newPlayer)
         );
-        // Add character back to the list
-        setState("characters", [
-          ...getState("characters"),
-          state.getState("character"),
-        ]);
       });
     });
   };
