@@ -11,6 +11,7 @@ class Keyboard {
       " ": false,
     };
     this.lastAngle = 0;
+    this.useJoystick = false;
 
     this.detectMouse().then((mouseExists) => {
       this.mouseExists = mouseExists;
@@ -22,6 +23,11 @@ class Keyboard {
       this.keyUpHandler = this.keyUpHandler.bind(this);
       this.addEventListeners();
     });
+  }
+  setJoystick(useJoystick) {
+    if (this.useJoystick === useJoystick) return;
+    else if (useJoystick) this.playerState.setState("ctr-joystick", false);
+    this.useJoystick = useJoystick;
   }
 
   hasMouse() {
@@ -78,7 +84,7 @@ class Keyboard {
   }
 
   keyDownHandler(event) {
-    if (!this.isUserPlayer) return;
+    if (!this.isUserPlayer || this.useJoystick) return;
     const key = event.key.toLowerCase();
     if (this.keyPressHooks[key] !== undefined) {
       if (key === " ") {
@@ -93,8 +99,7 @@ class Keyboard {
   }
 
   keyUpHandler(event) {
-    if (!this.isUserPlayer) return;
-
+    if (!this.isUserPlayer || this.userJoystick) return;
     const key = event.key.toLowerCase();
     if (this.keyPressHooks[key] !== undefined) {
       if (key === " ") {

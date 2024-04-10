@@ -3,7 +3,7 @@ import { CharacterSoldier } from "./CharacterSoldier";
 import { CharacterPlayer } from "./CharacterPlayer";
 import { CapsuleCollider, RigidBody, vec3 } from "@react-three/rapier";
 import { useFrame, useThree } from "@react-three/fiber";
-import { isHost } from "playroomkit";
+import { isHost, myPlayer } from "playroomkit";
 import { Billboard, CameraControls, Text } from "@react-three/drei";
 
 const MOVEMENT_SPEED = 200;
@@ -114,14 +114,10 @@ export const CharacterController = ({
       setAnimation("Death");
       return;
     }
+    keyboard.setJoystick(useJoystick);
 
-    if (keyboard.hasMouse() && !useJoystick) {
-      const x = (mouse.x * viewport.width) / 2.5;
-      const y = (mouse.y * viewport.height) / 2.5;
-      let mouseAngle = -Math.atan2(x, y) + Math.PI;
-      state.setState("ctr-angle", mouseAngle);
-      character.current.rotation.y = mouseAngle;
-    }
+    if (keyboard.hasMouse() && !useJoystick && state.id === myPlayer()?.id)
+      state.setState("ctr-joystick", true);
 
     // Update player position based on joystick state or keyboard input
     const angle = joystick.angle();
@@ -141,6 +137,13 @@ export const CharacterController = ({
       } else {
         setAnimation("Idle");
         if (!keyboard.hasMouse()) character.current.rotation.y = angle;
+        else {
+          const x = (mouse.x * viewport.width) / 2.5;
+          const y = (mouse.y * viewport.height) / 2.5;
+          let mouseAngle = -Math.atan2(x, y) + Math.PI;
+          state.setState("ctr-angle", mouseAngle);
+          character.current.rotation.y = mouseAngle;
+        }
         let angleMove = angle;
         if (keyboard.isAnyKeyPressed()) angleMove = keyboard.kbAngle();
 
