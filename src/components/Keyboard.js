@@ -11,80 +11,26 @@ class Keyboard {
       " ": false,
     };
     this.lastAngle = 0;
-    this.useJoystick = false;
 
-    this.detectMouse().then((mouseExists) => {
-      this.mouseExists = mouseExists;
-      this.mouseAngle = mouseExists ? 0 : undefined;
-      console.log("Mouse detected:", mouseExists);
-      this.mouseDownHandler = this.mouseDownHandler.bind(this);
-      this.mouseUpHandler = this.mouseUpHandler.bind(this);
-      this.keyDownHandler = this.keyDownHandler.bind(this);
-      this.keyUpHandler = this.keyUpHandler.bind(this);
-      this.addEventListeners();
-    });
-  }
-  setJoystick(useJoystick) {
-    if (this.useJoystick === useJoystick) return;
-    else if (useJoystick) this.playerState.setState("ctr-joystick", false);
-    this.useJoystick = useJoystick;
-  }
+    this.keyDownHandler = this.keyDownHandler.bind(this);
+    this.keyUpHandler = this.keyUpHandler.bind(this);
 
-  hasMouse() {
-    return this.mouseExists;
-  }
-
-  detectMouse(timeout = 5000) {
-    return new Promise((resolve) => {
-      const mouseDetected = () => {
-        window.removeEventListener("mousemove", mouseDetected);
-        window.removeEventListener("mousedown", mouseDetected);
-        resolve(true);
-      };
-
-      window.addEventListener("mousemove", mouseDetected);
-      window.addEventListener("mousedown", mouseDetected);
-
-      setTimeout(() => {
-        window.removeEventListener("mousemove", mouseDetected);
-        window.removeEventListener("mousedown", mouseDetected);
-        resolve(false);
-      }, timeout);
-    });
+    this.addEventListeners();
+    console.log("Keyboard initialized");
   }
 
   addEventListeners() {
     window.addEventListener("keydown", this.keyDownHandler);
     window.addEventListener("keyup", this.keyUpHandler);
-    console.log("Keyboard initialized");
-    if (this.mouseExists) {
-      window.addEventListener("mousedown", this.mouseDownHandler);
-      window.addEventListener("mouseup", this.mouseUpHandler);
-      console.log("Mouse initialized");
-    }
   }
 
   removeEventListeners() {
     window.removeEventListener("keydown", this.keyDownHandler);
     window.removeEventListener("keyup", this.keyUpHandler);
-    if (this.mouseExists) {
-      window.removeEventListener("mousedown", this.mouseDownHandler);
-      window.removeEventListener("mouseup", this.mouseUpHandler);
-    }
-  }
-
-  mouseDownHandler(event) {
-    if (!this.isUserPlayer || event.button !== 0) return;
-    this.playerState.setState("ctr-fire", true);
-  }
-
-  mouseUpHandler(event) {
-    if (!this.isUserPlayer || event.button !== 0) return;
-    this.playerState.setState("ctr-fire", false);
   }
 
   keyDownHandler(event) {
-    if (!this.isUserPlayer || this.useJoystick) return;
+    if (!this.isUserPlayer) return;
     const key = event.key.toLowerCase();
     if (this.keyPressHooks[key] !== undefined) {
       if (key === " ") {
@@ -99,7 +45,8 @@ class Keyboard {
   }
 
   keyUpHandler(event) {
-    if (!this.isUserPlayer || this.userJoystick) return;
+    if (!this.isUserPlayer) return;
+
     const key = event.key.toLowerCase();
     if (this.keyPressHooks[key] !== undefined) {
       if (key === " ") {
@@ -110,13 +57,14 @@ class Keyboard {
       this.updateAngle();
     }
 
-    // If no keys are pressed, stop the player movement
-    if (!this.isAnyKeyPressed() && !this.mouseExists) {
+    // If no keys are pressed, stop the player
+    if (!this.isAnyKeyPressed()) {
       this.playerState.setState("ctr-joystick", false);
     }
   }
-  kbAngle() {
-    return this.lastAngle;
+
+  angle() {
+    return this.playerState.getState("ctr-angle");
   }
 
   updateAngle() {
@@ -155,8 +103,7 @@ class Keyboard {
       angle = Math.PI * 0.25;
     }
     this.lastAngle = angle;
-
-    if (!this.mouseExists) this.playerState.setState("ctr-angle", angle);
+    this.playerState.setState("ctr-angle", angle);
   }
 
   isKeyPressed(key) {

@@ -14,10 +14,7 @@ import Keyboard from "./Keyboard";
 import { Bullet } from "./Bullet";
 import { BulletHit } from "./BulletHit";
 
-export const Experience = ({
-  downgradedPerformance = false,
-  useJoystick = true,
-}) => {
+export const Experience = ({ downgradedPerformance = false }) => {
   const [players, setPlayers] = useState([]);
 
   // Local bullets
@@ -110,7 +107,6 @@ export const Experience = ({
           onFire={onFire}
           onKilled={onKilled}
           downgradedPerformance={downgradedPerformance}
-          useJoystick={useJoystick}
         />
       ))}
       {(isHost() ? bullets : networkBullets).map((bullet) => (
