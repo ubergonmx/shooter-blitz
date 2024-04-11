@@ -31,13 +31,14 @@ export const Leaderboard = () => {
       </div>
       <button
         className="fixed top-4 right-4 z-10 text-white"
-        onClick={() => {
+        onClick={(event) => {
           // toggle fullscreen
           if (document.fullscreenElement) {
             document.exitFullscreen();
           } else {
             document.documentElement.requestFullscreen();
           }
+          event.currentTarget.blur();
         }}
       >
         <svg

@@ -14,7 +14,10 @@ import Keyboard from "./Keyboard";
 import { Bullet } from "./Bullet";
 import { BulletHit } from "./BulletHit";
 
-export const Experience = ({ downgradedPerformance = false }) => {
+export const Experience = ({
+  downgradedPerformance = false,
+  useJoystick = true,
+}) => {
   const [players, setPlayers] = useState([]);
 
   // Local bullets
@@ -73,13 +76,15 @@ export const Experience = ({ downgradedPerformance = false }) => {
         type: "angular",
         buttons: [{ id: "fire", label: "Fire" }],
       });
-      const keyboard = new Keyboard(state, state.id === myPlayer()?.id);
+      const userPlayer = state.id === myPlayer()?.id;
+      const keyboard = new Keyboard(state, userPlayer);
       const newPlayer = { state, joystick, keyboard };
       state.setState("health", 100);
       state.setState("deaths", 0);
       state.setState("kills", 0);
       if (state.getState("character") === undefined)
         state.setState("character", getRandomCharacter());
+      if (userPlayer) state.setState("useJoystick", useJoystick);
       setPlayers((players) => [...players, newPlayer]);
       state.onQuit(() => {
         keyboard.removeEventListeners();
@@ -107,6 +112,7 @@ export const Experience = ({ downgradedPerformance = false }) => {
           onFire={onFire}
           onKilled={onKilled}
           downgradedPerformance={downgradedPerformance}
+          useJoystick={useJoystick}
         />
       ))}
       {(isHost() ? bullets : networkBullets).map((bullet) => (

@@ -2,18 +2,32 @@ import { Canvas } from "@react-three/fiber";
 import { Experience } from "./components/Experience";
 import { Bloom, EffectComposer } from "@react-three/postprocessing";
 import { Loader, PerformanceMonitor, SoftShadows } from "@react-three/drei";
-import { Suspense, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { Physics } from "@react-three/rapier";
 import { Leaderboard } from "./components/Leaderboard";
 
 function App() {
   const [downgradedPerformance, setDowngradedPerformance] = useState(false);
+  const [useJoystick, setUseJoystick] = useState(true);
+
+  useEffect(() => {
+    // Check if the device supports touch events
+    setUseJoystick("ontouchstart" in window);
+  }, []);
 
   return (
     <>
       <Loader />
       <Leaderboard />
-
+      <button
+        className="fixed top-4 right-20 z-10 text-white"
+        onClick={(event) => {
+          setUseJoystick((prev) => !prev);
+          event.currentTarget.blur();
+        }}
+      >
+        {useJoystick ? "Using Joystick 🕹️" : "Using Mouse 🖱️"}
+      </button>
       <Canvas shadows camera={{ position: [0, 30, 0], fov: 30, near: 2 }}>
         <color attach="background" args={["#242424"]} />
 
@@ -29,7 +43,10 @@ function App() {
 
         <Suspense>
           <Physics>
-            <Experience downgradedPerformance={downgradedPerformance} />
+            <Experience
+              downgradedPerformance={downgradedPerformance}
+              useJoystick={useJoystick}
+            />
           </Physics>
         </Suspense>
 

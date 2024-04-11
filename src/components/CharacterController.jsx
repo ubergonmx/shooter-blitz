@@ -43,6 +43,7 @@ export const CharacterController = ({
   onFire,
   onKilled,
   downgradedPerformance,
+  useJoystick,
   ...props
 }) => {
   const group = useRef();
@@ -88,7 +89,14 @@ export const CharacterController = ({
     }
   }, [character.current]);
 
-  useFrame((_, delta) => {
+  useEffect(() => {
+    if (userPlayer) {
+      state.setState("useJoystick", useJoystick);
+      keyboard.useMouse = !useJoystick;
+    }
+  }, [useJoystick]);
+
+  useFrame(({ mouse, viewport }, delta) => {
     // If there is no rigidbody, return
     if (!rigidbody.current) return;
 
@@ -114,36 +122,34 @@ export const CharacterController = ({
       return;
     }
 
+    if (!state.getState("useJoystick") && userPlayer) {
+      const x = (mouse.x * viewport.width) / 2.5;
+      const y = (mouse.y * viewport.height) / 2.5;
+      const lookAngle = -Math.atan2(x, y) + Math.PI;
+      state.setState("ctr-angle", lookAngle);
+      character.current.rotation.y = lookAngle;
+    }
+
     // Update player position based on joystick state or keyboard input
     const angle = joystick.angle();
-    const kbAngle = keyboard.angle();
+
     if (joystick.isJoystickPressed() && angle) {
       setAnimation("Run");
       character.current.rotation.y = angle;
 
       // Move the character in its own direction
+      let moveAngle = angle;
+      if (!state.getState("useJoystick")) moveAngle = keyboard.kbAngle();
       const impulse = {
-        x: Math.sin(angle) * MOVEMENT_SPEED * delta,
+        x: Math.sin(moveAngle) * MOVEMENT_SPEED * delta,
         y: 0,
-        z: Math.cos(angle) * MOVEMENT_SPEED * delta,
+        z: Math.cos(moveAngle) * MOVEMENT_SPEED * delta,
       };
-      rigidbody.current.wakeUp();
-      rigidbody.current.applyImpulse(impulse);
-    } // else if keyboard input (WASD)
-    else if (keyboard.isAnyKeyPressed() && kbAngle) {
-      setAnimation("Run");
-      character.current.rotation.y = kbAngle;
-
-      const impulse = {
-        x: Math.sin(kbAngle) * MOVEMENT_SPEED * delta,
-        y: 0,
-        z: Math.cos(kbAngle) * MOVEMENT_SPEED * delta,
-      };
-
       rigidbody.current.wakeUp();
       rigidbody.current.applyImpulse(impulse);
     } else {
       setAnimation("Idle");
+      if (!state.getState("useJoystick")) character.current.rotation.y = angle;
     }
 
     if (isHost()) {

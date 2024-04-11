@@ -10,7 +10,7 @@ class Keyboard {
       //space bar
       " ": false,
     };
-    this.lastAngle = 0;
+    this.useMouse = false;
 
     this.keyDownHandler = this.keyDownHandler.bind(this);
     this.keyUpHandler = this.keyUpHandler.bind(this);
@@ -63,12 +63,12 @@ class Keyboard {
     }
   }
 
-  angle() {
-    return this.playerState.getState("ctr-angle");
+  kbAngle() {
+    return this.playerState.getState("ctr-keyboard-angle") || 0;
   }
 
   updateAngle() {
-    let angle = this.lastAngle;
+    let angle = this.kbAngle();
     if (
       this.keyPressHooks.w &&
       !this.keyPressHooks.a &&
@@ -102,8 +102,9 @@ class Keyboard {
     } else if (this.keyPressHooks.s && this.keyPressHooks.d) {
       angle = Math.PI * 0.25;
     }
-    this.lastAngle = angle;
-    this.playerState.setState("ctr-angle", angle);
+    this.playerState.setState("ctr-keyboard-angle", angle);
+
+    if (!this.useMouse) this.playerState.setState("ctr-angle", angle);
   }
 
   isKeyPressed(key) {
