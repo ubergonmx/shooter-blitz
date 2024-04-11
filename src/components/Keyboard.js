@@ -14,6 +14,8 @@ class Keyboard {
 
     this.keyDownHandler = this.keyDownHandler.bind(this);
     this.keyUpHandler = this.keyUpHandler.bind(this);
+    this.mouseDownHandler = this.mouseDownHandler.bind(this);
+    this.mouseUpHandler = this.mouseUpHandler.bind(this);
 
     this.addEventListeners();
     console.log("Keyboard initialized");
@@ -22,11 +24,15 @@ class Keyboard {
   addEventListeners() {
     window.addEventListener("keydown", this.keyDownHandler);
     window.addEventListener("keyup", this.keyUpHandler);
+    window.addEventListener("mousedown", this.mouseDownHandler);
+    window.addEventListener("mouseup", this.mouseUpHandler);
   }
 
   removeEventListeners() {
     window.removeEventListener("keydown", this.keyDownHandler);
     window.removeEventListener("keyup", this.keyUpHandler);
+    window.removeEventListener("mousedown", this.mouseDownHandler);
+    window.removeEventListener("mouseup", this.mouseUpHandler);
   }
 
   keyDownHandler(event) {
@@ -61,6 +67,16 @@ class Keyboard {
     if (!this.isAnyKeyPressed()) {
       this.playerState.setState("ctr-joystick", false);
     }
+  }
+
+  mouseDownHandler(event) {
+    if (!this.isUserPlayer || event.button !== 0) return;
+    this.playerState.setState("ctr-fire", true);
+  }
+
+  mouseUpHandler(event) {
+    if (!this.isUserPlayer || event.button !== 0) return;
+    this.playerState.setState("ctr-fire", false);
   }
 
   kbAngle() {
