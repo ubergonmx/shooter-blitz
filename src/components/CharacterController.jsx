@@ -22,6 +22,19 @@ export const WEAPON_OFFSET = {
 //   z: 0.8,
 // };
 
+// Disable CameraControls mouse buttons and touch events
+const mouseButtons = {
+  left: 0,
+  right: 0,
+  middle: 0,
+  wheel: 0,
+};
+const touches = {
+  one: 0,
+  two: 0,
+  three: 0,
+};
+
 export const CharacterController = ({
   state,
   joystick,
@@ -168,7 +181,13 @@ export const CharacterController = ({
 
   return (
     <group ref={group} {...props}>
-      {userPlayer && <CameraControls ref={controls} />}
+      {userPlayer && (
+        <CameraControls
+          ref={controls}
+          mouseButtons={mouseButtons}
+          touches={touches}
+        />
+      )}
       <RigidBody
         ref={rigidbody}
         colliders={false}
