@@ -12,7 +12,8 @@ The inspiration for this project stems from our childhood of playing countless h
 
 The project is available online, and it can be also run locally. If you want to try the online version, simply visit https://shooter-blitz.pages.dev. If you want to try locally, Node.js and npm must be installed on your PC. To run the program, simply follow the steps below:
 
-1. Open the terminal in the directory of the project folder.
+0. Open terminal and clone the repository using `git clone https://github.com/ubergonmx/shooter-blitz.git`
+1. Navigate to the project using `cd shooter-blitz`
 2. Type `npm install`
 3. Type `npm run dev`
 4. Open any browser and type what the console prints (e.g., localhost:5137)
@@ -22,6 +23,12 @@ If you want to play on **LAN**, replace `dev` with `demo` in step 3 and type the
 
 ## Credits
 
+Team
+
 - [aaronpal](https://github.com/ubergonmx) - programmer
-- Sean Umpad - modeling and animation of the main character models
-- [wass88](https://github.com/wass08/r3f-vite-starter) - template of this R3F project
+- [SeanUmpad](https://github.com/SeanUmpad) - modeling and animation of the main character models
+
+Others
+
+- [wass88](https://github.com/wass08/r3f-vite-starter) - starter template of R3F project
+- [quaternius](https://quaternius.com/packs/toonshootergamekit.html) - creator of Toon Shooter Game Kit
