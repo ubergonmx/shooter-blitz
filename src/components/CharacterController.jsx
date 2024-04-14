@@ -126,20 +126,26 @@ export const CharacterController = ({
       const x = (mouse.x * viewport.width) / 2.5;
       const y = (mouse.y * viewport.height) / 2.5;
       const lookAngle = -Math.atan2(x, y) + Math.PI;
-      state.setState("ctr-angle", lookAngle);
-      character.current.rotation.y = lookAngle;
+      state.setState("ctr-mouse-angle", lookAngle);
     }
 
     // Update player position based on joystick state or keyboard input
-    const angle = joystick.angle();
-
-    if (joystick.isJoystickPressed() && angle) {
+    const joystickAngle = joystick.angle();
+    const mouseAngle = state.getState("ctr-mouse-angle");
+    const moveAngle = keyboard.kbAngle();
+    if (joystick.isJoystickPressed() && joystickAngle) {
       setAnimation("Run");
-      character.current.rotation.y = angle;
-
-      // Move the character in its own direction
-      let moveAngle = angle;
-      if (!state.getState("useJoystick")) moveAngle = keyboard.kbAngle();
+      character.current.rotation.y = joystickAngle;
+      const impulse = {
+        x: Math.sin(joystickAngle) * MOVEMENT_SPEED * delta,
+        y: 0,
+        z: Math.cos(joystickAngle) * MOVEMENT_SPEED * delta,
+      };
+      rigidbody.current.wakeUp();
+      rigidbody.current.applyImpulse(impulse);
+    } else if (keyboard.isAnyKeyPressed()) {
+      setAnimation("Run");
+      character.current.rotation.y = mouseAngle;
       const impulse = {
         x: Math.sin(moveAngle) * MOVEMENT_SPEED * delta,
         y: 0,
@@ -149,7 +155,8 @@ export const CharacterController = ({
       rigidbody.current.applyImpulse(impulse);
     } else {
       setAnimation("Idle");
-      if (!state.getState("useJoystick")) character.current.rotation.y = angle;
+      if (!state.getState("useJoystick"))
+        character.current.rotation.y = mouseAngle;
     }
 
     if (isHost()) {
@@ -165,8 +172,8 @@ export const CharacterController = ({
     if (joystick.isPressed("fire")) {
       // fire
       if (
-        (joystick.isJoystickPressed() && angle) ||
-        (keyboard.isAnyKeyPressed() && kbAngle)
+        (joystick.isJoystickPressed() && joystickAngle) ||
+        keyboard.isAnyKeyPressed()
       )
         setAnimation("Run_Shoot");
       else setAnimation("Idle_Shoot");
@@ -176,7 +183,7 @@ export const CharacterController = ({
           const newBullet = {
             id: state.id + "-" + +new Date(),
             position: vec3(rigidbody.current.translation()),
-            angle,
+            angle: joystick.isJoystickPressed() ? joystickAngle : mouseAngle,
             player: state.id,
           };
           onFire(newBullet);

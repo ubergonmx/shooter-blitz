@@ -44,8 +44,9 @@ class Keyboard {
         return;
       }
 
-      this.playerState.setState("ctr-joystick", true);
+      this.playerState.setState("ctr-keyboard", true);
       this.keyPressHooks[key] = true;
+      this.playerState.setState("ctr-" + key, true);
       this.updateAngle();
     }
   }
@@ -60,12 +61,13 @@ class Keyboard {
         return;
       }
       this.keyPressHooks[key] = false;
+      this.playerState.setState("ctr-" + key, false);
       this.updateAngle();
     }
 
     // If no keys are pressed, stop the player
     if (!this.isAnyKeyPressed()) {
-      this.playerState.setState("ctr-joystick", false);
+      this.playerState.setState("ctr-keyboard", false);
     }
   }
 
@@ -128,7 +130,8 @@ class Keyboard {
   }
 
   isAnyKeyPressed() {
-    return Object.values(this.keyPressHooks).some((value) => value);
+    const movementKeys = ["w", "a", "s", "d"];
+    return movementKeys.some((key) => this.playerState.getState("ctr-" + key));
   }
 }
 
