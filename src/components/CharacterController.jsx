@@ -183,7 +183,10 @@ export const CharacterController = ({
           const newBullet = {
             id: state.id + "-" + +new Date(),
             position: vec3(rigidbody.current.translation()),
-            angle: joystick.isJoystickPressed() ? joystickAngle : mouseAngle,
+            angle:
+              joystick.isJoystickPressed() || useJoystick
+                ? joystickAngle
+                : mouseAngle,
             player: state.id,
           };
           onFire(newBullet);
