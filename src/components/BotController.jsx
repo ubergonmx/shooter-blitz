@@ -2,11 +2,12 @@ import { useEffect, useRef, useState } from "react";
 import { CharacterPlayer } from "./CharacterPlayer";
 import { CapsuleCollider, RigidBody, vec3 } from "@react-three/rapier";
 import { useFrame, useThree } from "@react-three/fiber";
-import { isHost, Bot } from "playroomkit";
+import { isHost, Bot, usePlayersList } from "playroomkit";
 import { Billboard, Text } from "@react-three/drei";
 
 const MOVEMENT_SPEED = 200;
 const FIRE_RATE = 380;
+const DETECT_RADIUS = 10;
 
 // FOR CHARACTER PLAYER
 export const WEAPON_OFFSET = {
@@ -21,6 +22,31 @@ export class PlayerBot extends Bot {
     super(botParams);
   }
 
+  checkNearestPlayer(players) {
+    const pos = this._player.state.pos;
+    if (!pos) return null;
+    for (const player of players) {
+      if (player.id === this._player.id) continue;
+      const playerPos = player.state.pos;
+      if (!playerPos) continue;
+      const distance = vec3(pos).distanceTo(vec3(playerPos));
+      if (distance < DETECT_RADIUS) {
+        // get angle for the bot to look at the player
+        const x = playerPos.x - pos.x;
+        const z = playerPos.z - pos.z;
+        const angle = -Math.atan2(z, x) + Math.PI / 2;
+        this.setState("bot-angle", angle);
+        this.setState("bot-target", true);
+        return player;
+      }
+    }
+    this.setState("bot-target", false);
+  }
+
+  hasTargetPlayer() {
+    return this.getState("bot-target");
+  }
+
   // A simple method for the bot to take action based on some game state
   decideAction() {
     const gameState = this.getState("gameState");
@@ -28,17 +54,6 @@ export class PlayerBot extends Bot {
       return "ATTACK";
     }
     return "MOVE_FORWARD";
-  }
-
-  // Receive damage and reduce health
-  takeDamage(damageAmount) {
-    let currentHealth = this.getState("health");
-    this.setState("health", currentHealth - damageAmount);
-  }
-
-  // Check if the bot is still alive
-  isAlive() {
-    return this.getState("health") > 0;
   }
 }
 
@@ -53,10 +68,11 @@ export const BotController = ({
   const character = useRef();
   const rigidbody = useRef();
   const lastShoot = useRef(0);
+  const players = usePlayersList();
+  const [target, setTarget] = useState(null);
   const [animation, setAnimation] = useState("Idle");
 
   const scene = useThree((state) => state.scene);
-
   const spawnRandomly = () => {
     const spawns = [];
     for (let i = 0; i < 1000; i++) {
@@ -88,10 +104,32 @@ export const BotController = ({
     // If there is no rigidbody, return
     if (!rigidbody.current) return;
 
-    // If player is dead, play death sfx & animation
+    // If bot is dead, play death sfx & animation
     if (state.state.dead) {
       setAnimation("Death");
       return;
+    }
+
+    state.bot.checkNearestPlayer(players);
+    if (state.bot.hasTargetPlayer()) {
+      // look at target player
+      character.current.rotation.y = state.getState("bot-angle");
+      setAnimation("Idle_Shoot");
+
+      if (isHost()) {
+        if (Date.now() - lastShoot.current > FIRE_RATE) {
+          lastShoot.current = Date.now();
+          const newBullet = {
+            id: state.id + "-" + +new Date(),
+            position: vec3(rigidbody.current.translation()),
+            angle: state.getState("bot-angle"),
+            player: state.id,
+          };
+          onFire(newBullet);
+        }
+      }
+    } else {
+      setAnimation("Idle");
     }
 
     if (isHost()) {
@@ -138,10 +176,10 @@ export const BotController = ({
           }
         }}
         userData={{
-          type: "bot",
+          type: "player",
         }}
       >
-        <PlayerInfo state={state.state} />
+        <BotInfo state={state.state} />
         <group ref={character}>
           <CharacterPlayer
             animation={animation}
@@ -154,7 +192,7 @@ export const BotController = ({
   );
 };
 
-const PlayerInfo = ({ state }) => {
+const BotInfo = ({ state }) => {
   const health = state.health;
   const name = state.profile.name;
   return (

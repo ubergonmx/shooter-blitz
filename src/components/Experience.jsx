@@ -83,17 +83,18 @@ export const Experience = ({
       if (state.getState("character") === undefined)
         state.setState("character", getRandomCharacter());
 
-      let newPlayer = { state };
+      const joystick = new Joystick(state, {
+        type: "angular",
+        buttons: [{ id: "fire", label: "Fire" }],
+      });
+      const userPlayer = state.id === myPlayer()?.id;
+      const keyboard = new Keyboard(state, userPlayer);
+      if (userPlayer) state.setState("useJoystick", useJoystick);
 
-      if (!state.isBot()) {
-        const joystick = new Joystick(state, {
-          type: "angular",
-          buttons: [{ id: "fire", label: "Fire" }],
-        });
-        const userPlayer = state.id === myPlayer()?.id;
-        const keyboard = new Keyboard(state, userPlayer);
-        if (userPlayer) state.setState("useJoystick", useJoystick);
-        newPlayer = { state, joystick, keyboard };
+      let newPlayer = { state, joystick, keyboard };
+      if (state.isBot()) {
+        keyboard.removeEventListeners();
+        newPlayer = { state };
       }
 
       setPlayers((players) => [...players, newPlayer]);
