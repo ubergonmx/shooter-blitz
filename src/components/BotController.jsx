@@ -30,7 +30,7 @@ export class PlayerBot extends Bot {
       const playerPos = player.state.pos;
       if (!playerPos) continue;
       const distance = vec3(pos).distanceTo(vec3(playerPos));
-      if (distance < DETECT_RADIUS) {
+      if (distance < DETECT_RADIUS && player.state.health > 0) {
         // get angle for the bot to look at the player
         const x = playerPos.x - pos.x;
         const z = playerPos.z - pos.z;
