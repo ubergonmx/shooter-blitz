@@ -154,7 +154,7 @@ export const BotController = ({
         if (Date.now() - lastShoot.current > FIRE_RATE) {
           lastShoot.current = Date.now();
           const newBullet = {
-            id: state.id + "-" + +new Date(),
+            id: state.id + "-" + +new Date() + Math.random(),
             position: vec3(rigidbody.current.translation()),
             angle: state.bot.lookAngle(),
             player: state.id,
