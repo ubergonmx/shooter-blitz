@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { CharacterPlayer } from "./CharacterPlayer";
 import { CapsuleCollider, RigidBody, vec3 } from "@react-three/rapier";
 import { useFrame, useThree } from "@react-three/fiber";
-import { isHost } from "playroomkit";
+import { isHost, Bot } from "playroomkit";
 import { Billboard, Text } from "@react-three/drei";
 
 const MOVEMENT_SPEED = 200;
@@ -15,6 +15,33 @@ export const WEAPON_OFFSET = {
   z: 1.0,
 };
 
+// BOT CLASS
+export class PlayerBot extends Bot {
+  constructor(botParams) {
+    super(botParams);
+  }
+
+  // A simple method for the bot to take action based on some game state
+  decideAction() {
+    const gameState = this.getState("gameState");
+    if (gameState.enemyNearby) {
+      return "ATTACK";
+    }
+    return "MOVE_FORWARD";
+  }
+
+  // Receive damage and reduce health
+  takeDamage(damageAmount) {
+    let currentHealth = this.getState("health");
+    this.setState("health", currentHealth - damageAmount);
+  }
+
+  // Check if the bot is still alive
+  isAlive() {
+    return this.getState("health") > 0;
+  }
+}
+
 export const BotController = ({
   state,
   onFire,
@@ -25,9 +52,7 @@ export const BotController = ({
   const group = useRef();
   const character = useRef();
   const rigidbody = useRef();
-  const controls = useRef();
   const lastShoot = useRef(0);
-  const directionalLight = useRef();
   const [animation, setAnimation] = useState("Idle");
 
   const scene = useThree((state) => state.scene);
