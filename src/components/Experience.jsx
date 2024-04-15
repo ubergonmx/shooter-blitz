@@ -33,6 +33,11 @@ export const Experience = ({
   // Network hits
   const [networkHits, setNetworkHits] = useMultiplayerState("hits", []);
 
+  // Local player bots
+  const [bots, setBots] = useState([]);
+  // Network player bots
+  const [networkBots, setNetworkBots] = useMultiplayerState("bots", []);
+
   useEffect(() => {
     setNetworkBullets(bullets);
   }, [bullets]);
