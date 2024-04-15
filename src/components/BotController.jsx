@@ -47,13 +47,24 @@ export class PlayerBot extends Bot {
     return this.getState("bot-target");
   }
 
-  // A simple method for the bot to take action based on some game state
-  decideAction() {
-    const gameState = this.getState("gameState");
-    if (gameState.enemyNearby) {
-      return "ATTACK";
-    }
-    return "MOVE_FORWARD";
+  isMoving() {
+    return this.getState("bot-move");
+  }
+
+  changeMoveState() {
+    this.setState("bot-move", !this.getState("bot-move"));
+  }
+
+  lookAngle() {
+    return this.getState("bot-angle");
+  }
+
+  changeMoveAngleRandom() {
+    this.setState("bot-move-angle", Math.random() * Math.PI * 2);
+  }
+
+  moveAngle() {
+    return this.getState("bot-move-angle");
   }
 }
 
@@ -69,7 +80,6 @@ export const BotController = ({
   const rigidbody = useRef();
   const lastShoot = useRef(0);
   const players = usePlayersList();
-  const [target, setTarget] = useState(null);
   const [animation, setAnimation] = useState("Idle");
 
   const scene = useThree((state) => state.scene);
@@ -100,6 +110,32 @@ export const BotController = ({
     }
   }, [state.state.dead]);
 
+  useEffect(() => {
+    // Generate a random delay between 1 and 10 seconds
+    const delay = Math.random() * 9000 + 1000;
+
+    // Set a timeout to change the state after the delay
+    const timeoutId = setTimeout(() => {
+      state.bot.changeMoveState();
+    }, delay);
+
+    // Clear the timeout if the component unmounts before the timeout fires
+    return () => clearTimeout(timeoutId);
+  }, [state.bot.isMoving()]); // Rerun the effect whenever moving state changes
+
+  useEffect(() => {
+    // Generate a random delay between 1 and 3 seconds
+    const delay = Math.random() * 2000 + 1000;
+
+    // Set a timeout to change the state after the delay
+    const timeoutId = setTimeout(() => {
+      state.bot.changeMoveAngleRandom();
+    }, delay);
+
+    // Clear the timeout if the component unmounts before the timeout fires
+    return () => clearTimeout(timeoutId);
+  }, [state.bot.moveAngle()]); // Rerun the effect whenever moving angle changes
+
   useFrame((_, delta) => {
     // If there is no rigidbody, return
     if (!rigidbody.current) return;
@@ -114,22 +150,34 @@ export const BotController = ({
     if (state.bot.hasTargetPlayer()) {
       // look at target player
       character.current.rotation.y = state.getState("bot-angle");
-      setAnimation("Idle_Shoot");
-
       if (isHost()) {
         if (Date.now() - lastShoot.current > FIRE_RATE) {
           lastShoot.current = Date.now();
           const newBullet = {
             id: state.id + "-" + +new Date(),
             position: vec3(rigidbody.current.translation()),
-            angle: state.getState("bot-angle"),
+            angle: state.bot.lookAngle(),
             player: state.id,
           };
           onFire(newBullet);
         }
       }
+    }
+
+    if (state.bot.isMoving()) {
+      setAnimation(state.bot.hasTargetPlayer() ? "Run_Shoot" : "Run");
+      const randomAngle = state.bot.moveAngle();
+      if (!state.bot.hasTargetPlayer())
+        character.current.rotation.y = randomAngle;
+      const impulse = {
+        x: Math.sin(randomAngle) * MOVEMENT_SPEED * delta,
+        y: 0,
+        z: Math.cos(randomAngle) * MOVEMENT_SPEED * delta,
+      };
+      rigidbody.current.wakeUp();
+      rigidbody.current.applyImpulse(impulse);
     } else {
-      setAnimation("Idle");
+      setAnimation(state.bot.hasTargetPlayer() ? "Idle_Shoot" : "Idle");
     }
 
     if (isHost()) {
