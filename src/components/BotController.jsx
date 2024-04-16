@@ -48,7 +48,7 @@ export class PlayerBot extends Bot {
   }
 
   isMoving() {
-    return this.getState("bot-move");
+    return this.getState("bot-move") || false;
   }
 
   changeMoveState() {
@@ -64,7 +64,7 @@ export class PlayerBot extends Bot {
   }
 
   moveAngle() {
-    return this.getState("bot-move-angle");
+    return this.getState("bot-move-angle") || 0;
   }
 }
 
@@ -121,7 +121,7 @@ export const BotController = ({
 
     // Clear the timeout if the component unmounts before the timeout fires
     return () => clearTimeout(timeoutId);
-  }, [state.bot.isMoving()]); // Rerun the effect whenever moving state changes
+  }, [state.bot?.isMoving()]); // Rerun the effect whenever moving state changes
 
   useEffect(() => {
     // Generate a random delay between 1 and 3 seconds
@@ -134,7 +134,7 @@ export const BotController = ({
 
     // Clear the timeout if the component unmounts before the timeout fires
     return () => clearTimeout(timeoutId);
-  }, [state.bot.moveAngle()]); // Rerun the effect whenever moving angle changes
+  }, [state.bot?.moveAngle()]); // Rerun the effect whenever moving angle changes
 
   useFrame((_, delta) => {
     // If there is no rigidbody, return
