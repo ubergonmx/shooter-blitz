@@ -116,7 +116,7 @@ export const BotController = ({
 
     // Set a timeout to change the state after the delay
     const timeoutId = setTimeout(() => {
-      state.bot.changeMoveState();
+      state.bot?.changeMoveState();
     }, delay);
 
     // Clear the timeout if the component unmounts before the timeout fires
@@ -129,7 +129,7 @@ export const BotController = ({
 
     // Set a timeout to change the state after the delay
     const timeoutId = setTimeout(() => {
-      state.bot.changeMoveAngleRandom();
+      state.bot?.changeMoveAngleRandom();
     }, delay);
 
     // Clear the timeout if the component unmounts before the timeout fires
