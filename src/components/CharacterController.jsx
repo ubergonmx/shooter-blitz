@@ -92,7 +92,8 @@ export const CharacterController = ({
   useEffect(() => {
     if (userPlayer) {
       state.setState("useJoystick", useJoystick);
-      keyboard.useMouse = !useJoystick;
+      // Get last angle from mouse
+      state.setState("ctr-angle", state.getState("ctr-mouse-angle"));
     }
   }, [useJoystick]);
 
@@ -184,7 +185,7 @@ export const CharacterController = ({
             id: state.id + "-" + +new Date(),
             position: vec3(rigidbody.current.translation()),
             angle:
-              joystick.isJoystickPressed() || useJoystick
+              joystick.isJoystickPressed() || state.getState("useJoystick")
                 ? joystickAngle
                 : mouseAngle,
             player: state.id,

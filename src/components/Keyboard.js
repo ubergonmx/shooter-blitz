@@ -1,5 +1,6 @@
 class Keyboard {
   constructor(state, isUserPlayer) {
+    if (state.isBot()) return;
     this.playerState = state;
     this.isUserPlayer = isUserPlayer;
     this.keyPressHooks = {
@@ -10,8 +11,6 @@ class Keyboard {
       //space bar
       " ": false,
     };
-    this.useMouse = false;
-
     this.keyDownHandler = this.keyDownHandler.bind(this);
     this.keyUpHandler = this.keyUpHandler.bind(this);
     this.mouseDownHandler = this.mouseDownHandler.bind(this);
@@ -37,12 +36,15 @@ class Keyboard {
 
   keyDownHandler(event) {
     if (!this.isUserPlayer) return;
+
     const key = event.key.toLowerCase();
     if (this.keyPressHooks[key] !== undefined) {
       if (key === " ") {
         this.playerState.setState("ctr-fire", true);
         return;
       }
+
+      if (this.playerState.getState("useJoystick")) return;
 
       this.playerState.setState("ctr-keyboard", true);
       this.keyPressHooks[key] = true;
@@ -121,8 +123,6 @@ class Keyboard {
       angle = Math.PI * 0.25;
     }
     this.playerState.setState("ctr-keyboard-angle", angle);
-
-    if (!this.useMouse) this.playerState.setState("ctr-angle", angle);
   }
 
   isKeyPressed(key) {

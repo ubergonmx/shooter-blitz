@@ -92,10 +92,7 @@ export const Experience = ({
       if (userPlayer) state.setState("useJoystick", useJoystick);
 
       let newPlayer = { state, joystick, keyboard };
-      if (state.isBot()) {
-        keyboard.removeEventListeners();
-        newPlayer = { state };
-      }
+      if (state.isBot()) newPlayer = { state };
 
       setPlayers((players) => [...players, newPlayer]);
       state.onQuit(() => {
