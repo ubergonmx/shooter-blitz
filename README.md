@@ -17,9 +17,13 @@ The project is available online, and it can be also run locally. If you want to 
 2. Type `npm install`
 3. Type `npm run dev`
 4. Open any browser and type what the console prints (e.g., localhost:5137)
-5. Click `Launch` to start the game; WASD for controls, and Space for Fire if you prefer to use a keyboard.
+5. You can add bots (or invite players) then click `Launch` to start the game
 
 If you want to play on **LAN**, replace `dev` with `demo` in step 3 and type the provided **Network URL**. In this way, you can also play using either **desktop** or **mobile devices**.
+
+## Controls
+
+You can switch controls, either using Keyboard+Mouse or Joystick, by toggling the option on the upper right. `WASD` for movement, and `Space`/`Left click` for shooting if you prefer to use a keyboard/mouse.
 
 ## Credits
 
